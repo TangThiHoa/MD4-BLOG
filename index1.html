@@ -21,46 +21,25 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <form class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>
+                <button onclick="showAddForm()">ADD</button>
             </nav>
         </div>
+        <button onclick="main()"> Back </button>
     </div>
     <div class="row" style="margin-top:50px" id="display">
     </div>
+
+
     <script>
-
         const KEY = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjU3NzAyODExLCJleHAiOjg4MDU3NzAyODExfQ.mC2jwAkk-KLP1trSAb21IcP5R70vgpJttCFLvjiWBp-jzbuY2xFiALfaErjKYxrhH2jXObMqH6MqwC8W4h2TNQ";
-        $.ajax({
-            headers: {
-                Authorization: 'Bearer ' + KEY,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            type: "GET",
-            url: "http://localhost:8000/api/blogs",
-            success: function (blogs) {
-                console.log(blogs)
-                let str = "";
-                for (let i = 0; i < blogs.length; i++) {
-                    str += `
-        <div class="col-2 mt-3">
-           <img src="${blogs[i].img}" style="width: 100%">
-        </div>
-        <div class="col-9 mt-3">
-            <button onclick="show()">${blogs[i].title}</button>
-            <p>${blogs[i].dateCreated}</p>
-            <p>${blogs[i].user.username}</p>
-        </div>`
-                }
-                document.getElementById('display').innerHTML = str
-            }
-        })
+        main()
 
-
-        function show() {
+        function main() {
             $.ajax({
                 headers: {
                     Authorization: 'Bearer ' + KEY,
@@ -73,30 +52,120 @@
                     console.log(blogs)
                     let str = "";
                     for (let i = 0; i < blogs.length; i++) {
+                        str += `
+                            <div class="col-2 mt-3">
+                               <img src="${blogs[i].img}" style="width: 100%">
+                            </div>
+                            <div class="col-9 mt-3">
+                                <button onclick="show(${blogs[i].id})">${blogs[i].title}</button>
+                                <p>${blogs[i].dateCreated}</p>
+                                <p>${blogs[i].user.username}</p>
+                                <input type="hidden" id="blog" value="${blogs[i].id}">
+                            </div>`
+                    }
+                    document.getElementById('display').innerHTML = str
+                }
+            })
+
+        }
+        function show(id) {
+            $.ajax({
+                headers: {
+                    Authorization: 'Bearer ' + KEY,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "GET",
+                url: "http://localhost:8000/api/blogs/"+ id,
+                success: function (blogs) {
+                    console.log(blogs)
+                    let str = "";
                         str +=`
             <div class="col-6 mt-3">
-                  <h1>${blogs[i].title}</h1>
-                  <p>${blogs[i].content}</p>
-                  <td>${blogs[i].user.username}</td>
-                  <p>${blogs[i].dateCreated}</p>
+                  <h1>${blogs.title}</h1>
+                  <p>${blogs.content}</p>
+                  <td>${blogs.user.username}</td>
+                  <p>${blogs.dateCreated}</p>
+                  <button onclick="showFormEdit()"> Edit </button>
+                  <button onclick="delete()"> Edit </button>
 
             </div>
             <div class="col-12 mt-3">
-                              <p>${blogs[i].shortDescription}</p>
+                              <p>${blogs.shortDescription}</p>
 
             </div>
+
                      `
-                    }
+
                     document.getElementById('display').innerHTML = str
                 }
 
             })
         }
+        function showAddForm() {
+            let str =
+                `
+                    <input type="text" placeholder="Title" id = "title">
+                    <input type="text" placeholder="Content" id = "contentA">
+                    <input type="hidden" id="dateCreated">
+                    <input type="hidden" value="${localStorage.getItem('id')}" id="id">
+                    <input type="hidden" id="img">
+                    <input type="text" placeholder="Short Description" id = "shortDescription">
+                    <input type="text" placeholder="status" id = "status">
+                    <button onclick="save()">Save</button>
+                `;
+            document.getElementById('display').innerHTML = str
+
+
+}
+        function save() {
+            let title = document.getElementById("title").value;
+            let dateCreated = document.getElementById("dateCreated").value;
+            let content = document.getElementById("contentA").value;
+            let shortDescription = document.getElementById("shortDescription").value;
+            let status = document.getElementById("status").value;
+            let idP = document.getElementById("id").value;
+            let blog = {
+                title: title,
+                dateCreated: dateCreated,
+                content: content,
+                img: img,
+                shortDescription:shortDescription,
+                status:status,
+                user: {
+                    id: idP
+                }
+            }
+            console.log(blog)
+            $.ajax({
+                headers: {
+                    Authorization: 'Bearer ' + KEY,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "POST",
+                url: "http://localhost:8000/api/blogs",
+                data: JSON.stringify(blog),
+                success: function () {
+                    main()
+                    document.getElementById("title").value = ""
+                    document.getElementById("content").value = ""
+                    document.getElementById("img").value = ""
+                    document.getElementById("shortDescription").value = ""
+                    document.getElementById("status").value = ""
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        }
+        function showFormEdit() {
+            hihi
+
+
+        }
 
     </script>
-
-
-
 
 </div>
 </body>
