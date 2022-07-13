@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+            crossorigin="anonymous"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <nav class="navbar navbar-dark bg-dark">
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row" style="margin-top:50px" id="display">
+    </div>
+    <script>
+
+        const KEY = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjU3NzAyODExLCJleHAiOjg4MDU3NzAyODExfQ.mC2jwAkk-KLP1trSAb21IcP5R70vgpJttCFLvjiWBp-jzbuY2xFiALfaErjKYxrhH2jXObMqH6MqwC8W4h2TNQ";
+        $.ajax({
+            headers: {
+                Authorization: 'Bearer ' + KEY,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "GET",
+            url: "http://localhost:8000/api/blogs",
+            success: function (blogs) {
+                console.log(blogs)
+                let str = "";
+                for (let i = 0; i < blogs.length; i++) {
+                    str += `
+        <div class="col-2 mt-3">
+           <img src="${blogs[i].img}" style="width: 100%">
+        </div>
+        <div class="col-9 mt-3">
+            <button onclick="show()">${blogs[i].title}</button>
+            <p>${blogs[i].dateCreated}</p>
+            <p>${blogs[i].user.username}</p>
+        </div>`
+                }
+                document.getElementById('display').innerHTML = str
+            }
+        })
+
+
+        function show() {
+            $.ajax({
+                headers: {
+                    Authorization: 'Bearer ' + KEY,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "GET",
+                url: "http://localhost:8000/api/blogs",
+                success: function (blogs) {
+                    console.log(blogs)
+                    let str = "";
+                    for (let i = 0; i < blogs.length; i++) {
+                        str +=`
+            <div class="col-6 mt-3">
+                  <h1>${blogs[i].title}</h1>
+                  <p>${blogs[i].content}</p>
+                  <td>${blogs[i].user.username}</td>
+                  <p>${blogs[i].dateCreated}</p>
+
+            </div>
+            <div class="col-12 mt-3">
+                              <p>${blogs[i].shortDescription}</p>
+
+            </div>
+                     `
+                    }
+                    document.getElementById('display').innerHTML = str
+                }
+
+            })
+        }
+
+    </script>
+
+
+
+
+</div>
+</body>
+</html>
